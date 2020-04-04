@@ -6,6 +6,7 @@
     "chalk": "^2.4.1",
     "discovery-swarm": "^5.1.2",
     "hypercore": "^6.20.2",
+    "hyperswarm": "^2.10.1",
     "kappa-core": "^2.3.2",
     "kappa-view-kv": "^2.0.1",
     "kappa-view-list": "^1.1.1",
