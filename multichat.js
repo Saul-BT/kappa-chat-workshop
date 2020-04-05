@@ -5,21 +5,22 @@ const crypto = require('crypto')
 var pump = require('pump')
 
 // Check args
-if (! process.argv[2] || process.argv.length > 4) {
-  console.log('USAGE: "node multifeed.js topic [num]"')
+if (!process.argv[2] || process.argv.length > 5) {
+  console.log('USAGE: "node multifeed.js nickname [topic] [num]"')
   console.log(' - num arg is used for store multiple feeds on the same machine')
-  
+
   process.exit(1)
   return
 }
 
-var topic = pocess.argv[2]
-var num = process.argv[3] || 0
+var nickname = process.argv[2]
+var topic = process.argv[3] || 'meh' // meh is the default topic
+var num = process.argv[4] || 0
 
 // Creating topic
 const topicHex = crypto.createHash('sha256')
-		    .update()
-		    .digest()
+  .update(topic)
+  .digest()
 
 // Creating multifeed
 var multi = multifeed(`./multichat-${num}`, {
@@ -33,12 +34,35 @@ multi.writer('local', function(err, feed) {
   process.stdin.on('data', function(data) {
     feed.append({
       type: 'chat-message',
-      nickname: 'cat-lover',
+      nickname: nickname,
       text: data.toString(),
       timestamp: new Date().toISOString()
     })
   })
 })
+
+multi.ready(function() {
+  var feeds = multi.feeds()
+
+  // iterate over each feed that exists locally..
+  feeds.forEach(function(feed) {
+    // feed is a hypercore! (remember reading from hypercores in previous exercises?)
+    feed.createReadStream({ live: true })
+      .on('data', function(data) {
+        console.log(`<${data.timestamp}> ${data.nickname}: ${data.text}`)
+      })
+  })
+
+  // listen for new feeds that might be shared with us during runtime..
+  multi.on('feed', function(feed) {
+    feed.createReadStream({ live: true })
+      .on('data', function(data) {
+        console.log(`<${data.timestamp}> ${data.nickname}: ${data.text}`)
+      })
+  })
+})
+
+
 
 // Joining swarm by topic
 function startSwarm(topic) {
