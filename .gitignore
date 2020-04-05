@@ -1,6 +1,7 @@
 *~
 package-lock.json
 
+multichat-*/
 node_modules/
 single-chat-feed/
 single-chat-feed-clone/
