@@ -1,30 +1,19 @@
-// Save this file as single-chat.js
 var hyperswarm = require('hyperswarm')
 var hypercore = require('hypercore')
 var pump = require('pump')
 
-var feed = hypercore('./single-chat-feed', {
+var feed = hypercore('./single-chat-feed-clone',
+  '{public key of the feed}', {
   valueEncoding: 'json'
-})
-
-// Appending new data from stdin to the feed
-process.stdin.on('data', function(data) {
-  feed.append({
-    type: 'chat-message',
-    nickname: 'tarod16',
-    text: data.toString().trim(),
-    timestamp: new Date().toISOString()
-  })
 })
 
 // Creating a read-only steam to read
 // data from the feed
-/*
 feed.createReadStream({ live: true })
   .on('data', function(data) {
     console.log(`<${data.timestamp}> ${data.nickname}: ${data.text}`)
   })
-*/
+
 
 var swarm = hyperswarm()
 
@@ -32,8 +21,11 @@ feed.ready(function() {
   // Printing feed keys
   console.log('public key:', feed.key.toString('hex'))
   console.log('discovery key:', feed.discoveryKey.toString('hex'))
-  console.log('secret key:', feed.secretKey.toString('hex'))
-
+  // This peer has not a secret key for the feed,
+  // For this reason, It has read-only access to the feed.
+  // console.log('secret key:', feed.secretKey.toString('hex'))
+  
+  // we use the discovery as the topic
   swarm.join(feed.discoveryKey, {
     lookup: true, // find & connect to peers
     announce: true // optional- announce self as a connection target
