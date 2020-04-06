@@ -7,7 +7,8 @@ var pump = require('pump')
 // Check args
 if (!process.argv[2] || process.argv.length > 5) {
   console.log('USAGE: "node multifeed.js nickname [topic] [num]"')
-  console.log(' - num arg is used for store multiple feeds on the same machine')
+  console.log(' - the default [topic] is "meh"')
+  console.log(' - [num] arg is used for store multiple feeds on the same machine (default 0)')
 
   process.exit(1)
   return
